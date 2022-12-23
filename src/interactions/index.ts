@@ -12,7 +12,6 @@ export type Interaction =
     | SlashCommandSubcommandGroupBuilder;
 
 export default async () => {
-    console.log(__dirname)
     const dir = await loadDir(__dirname);
     const promises = dir.files.map(async (file) => {
         const filepath = path.resolve(__dirname, file);
