@@ -1,6 +1,7 @@
 import { ClientEvents } from "discord.js";
 import BotClient from "../client";
 import loadDir from "../utils/loadDir";
+import path from "path";
 
 export type Event<K extends keyof ClientEvents> = {
     name: K;
@@ -12,9 +13,10 @@ export type Event<K extends keyof ClientEvents> = {
 };
 
 export default async () => {
-    const dir = await loadDir(".");
+    const dir = await loadDir(__dirname);
     const promises = dir.files.map(async (file) => {
-        const event: Event<keyof ClientEvents> = (await import(file)).default;
+        const filepath = path.resolve(__dirname, file);
+        const event: Event<keyof ClientEvents> = (await import(filepath)).default;
         return event;
     });
     return Promise.all(promises);
