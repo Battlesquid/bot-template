@@ -1,7 +1,9 @@
 const VARIABLES = [
     "DISCORD_TOKEN",
     "DISCORD_CLIENT_ID"
-];
+] as const;
+
+type ConfigVariable = typeof VARIABLES[number]
 
 const config: { [k: string]: string } = {};
 VARIABLES.forEach((v) => {
@@ -12,4 +14,4 @@ VARIABLES.forEach((v) => {
     config[v] = process.env[v]!;
 });
 
-export default (key: string) => config[key];
+export default (key: ConfigVariable) => config[key];
