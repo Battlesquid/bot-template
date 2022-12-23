@@ -6,7 +6,8 @@ import { ActivityType, IntentsBitField } from "discord.js";
 import BotClient from "./client";
 import config from "./utils/config";
 
-const client = new BotClient({
+const client = new BotCl
+ient({
     intents: [
         IntentsBitField.Flags.Guilds,
         IntentsBitField.Flags.GuildMessages,
@@ -16,7 +17,7 @@ const client = new BotClient({
     presence: {
         status: "online",
         activities: [{
-            type: ActivityType.Listening,
+            type: ActivityType.Watching,
             name: "for commands."
         }]
     }

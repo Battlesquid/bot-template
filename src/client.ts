@@ -10,10 +10,12 @@ import events from "./events";
 import functions, { InteractionExecution } from "./functions";
 import interactions from "./interactions";
 import config from './utils/config';
+import logger from "./utils/logger";
 
 export default class BotClient extends Client {
     private fns: Collection<string, InteractionExecution>;
-
+    public readonly logger = logger;
+    
     constructor(options: ClientOptions) {
         super(options);
         this.fns = new Collection();
