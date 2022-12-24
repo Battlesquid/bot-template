@@ -3,8 +3,7 @@ import {
     SlashCommandSubcommandBuilder,
     SlashCommandSubcommandGroupBuilder
 } from "discord.js";
-import loadDir from "../utils/loadDir";
-import path from "path";
+import { loadDirAs } from "../utils/loadDir";
 
 export type Interaction =
     | SlashCommandBuilder
@@ -12,11 +11,6 @@ export type Interaction =
     | SlashCommandSubcommandGroupBuilder;
 
 export default async () => {
-    const dir = await loadDir(__dirname);
-    const promises = dir.files.map(async (file) => {
-        const filepath = path.resolve(__dirname, file);
-        const interaction: Interaction = (await import(filepath)).default;
-        return interaction.toJSON();
-    });
-    return Promise.all(promises);
+    const modules = await loadDirAs<Interaction>(__dirname);
+    return modules.map(m => m.toJSON());
 }

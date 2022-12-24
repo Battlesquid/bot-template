@@ -1,6 +1,7 @@
 import fs from "fs/promises";
+import path from "path";
 
-export default async (path: string) => {
+export const loadDir = async (path: string) => {
     const dir = await fs.readdir(path, { withFileTypes: true });
     const dirs: string[] = [];
     const files: string[] = [];
@@ -14,3 +15,13 @@ export default async (path: string) => {
     });
     return { dirs, files };
 };
+
+export const loadDirAs = async<T>(path_: string) => {
+    const dir = await loadDir(path_);
+    const promises = dir.files.map(async (file) => {
+        const filepath = path.resolve(path_, file);
+        const module: T = (await import(filepath)).default;
+        return module;
+    });
+    return Promise.all(promises);
+}
