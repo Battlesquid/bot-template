@@ -10,7 +10,4 @@ export type Interaction =
     | SlashCommandSubcommandBuilder
     | SlashCommandSubcommandGroupBuilder;
 
-export default async () => {
-    const modules = await loadDirAs<Interaction>(__dirname);
-    return modules.map(m => m.toJSON());
-}
+export default async () => loadDirAs<Interaction>(__dirname);
