@@ -6,8 +6,7 @@ import { ActivityType, IntentsBitField } from "discord.js";
 import BotClient from "./client";
 import config from "./utils/config";
 
-const client = new BotCl
-ient({
+const client = new BotClient({
     intents: [
         IntentsBitField.Flags.Guilds,
         IntentsBitField.Flags.GuildMessages,
