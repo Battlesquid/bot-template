@@ -11,7 +11,7 @@ VARIABLES.forEach((v) => {
         console.error(`Environment variable '${v}' missing, exiting.`);
         process.exit();
     }
-    config[v] = process.env[v]!;
+    config[v] = process.env[v] as string;
 });
 
 export default (key: ConfigVariable) => config[key];

@@ -3,7 +3,7 @@ import { Event } from ".";
 const event: Event<"ready"> = {
     name: "ready",
     once: true,
-    handle(client, _baseClient) {
+    handle(client) {
         client.logger.info("bot online.");
     }
 };
