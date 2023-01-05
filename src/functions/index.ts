@@ -1,17 +1,40 @@
-import { ChatInputCommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction, CommandInteraction, Interaction, MessageContextMenuCommandInteraction, UserContextMenuCommandInteraction } from 'discord.js';
 import BotClient from '../client';
 import { loadDirAs } from "../utils/loadDir";
 
-export type InteractionExecution = (
+export type CommandFunction<T> = (
     client: BotClient,
-    interaction: ChatInputCommandInteraction
+    interaction: T
 ) => Promise<void>
 
-export type InteractionFunction = {
-    name: string;
+export type SecondaryInteractionHandler = (
+    client: BotClient,
+    interaction: Interaction
+) => Promise<void>
+
+export type BaseCommand<T extends CommandInteraction> = {
+    name: string
+    secondaryInteraction?: SecondaryInteractionHandler
+    execute: CommandFunction<T>
+}
+
+export interface ChatInputCommand extends BaseCommand<ChatInputCommandInteraction> {
+    type: "chat_input"
     subcommand?: string;
     group?: string;
-    execute: InteractionExecution
-};
+}
 
-export default () => loadDirAs<InteractionFunction>(__dirname);
+export interface UserCommand extends BaseCommand<UserContextMenuCommandInteraction> {
+    type: "user"
+}
+
+export interface MessageCommand extends BaseCommand<MessageContextMenuCommandInteraction> {
+    type: "message"
+}
+
+export type Command =
+    | ChatInputCommand
+    | UserCommand
+    | MessageCommand
+
+export default () => loadDirAs<Command>(__dirname);

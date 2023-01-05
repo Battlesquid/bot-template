@@ -1,6 +1,8 @@
 const VARIABLES = [
     "DISCORD_TOKEN",
-    "DISCORD_CLIENT_ID"
+    "DISCORD_CLIENT_ID",
+    "DISCORD_BOT_NAME",
+    "DATABASE_URL"
 ] as const;
 
 type ConfigVariable = typeof VARIABLES[number]

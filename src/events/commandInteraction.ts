@@ -1,21 +1,13 @@
-import { Event } from '.';
 import { Events, Interaction } from "discord.js";
+import { Event } from '.';
 import BotClient from "../client";
 
-const event: Event<"interactionCreate"> = {
+const event: Event<Events.InteractionCreate> = {
     name: Events.InteractionCreate,
     handle: async (client: BotClient, inter: Interaction) => {
-        if (!inter.isChatInputCommand()) return;
-
-        const execute = client.getFunction(inter);
-        if (!execute) {
-            inter.reply({
-                content: "Command function not found, it may have been removed or moved somwhere else.",
-                ephemeral: true
-            });
-            return;
+        if (inter.isCommand()) {
+            client.runCommand(inter);
         }
-        execute(client, inter);
     },
 };
 

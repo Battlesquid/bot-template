@@ -1,31 +1,57 @@
+import { MikroORM } from "@mikro-orm/core";
+import { PostgreSqlDriver } from "@mikro-orm/postgresql";
 import {
     ChatInputCommandInteraction,
     Client,
     ClientOptions,
     Collection,
+    CommandInteraction, MessageContextMenuCommandInteraction,
     REST,
-    Routes
+    Routes,
+    UserContextMenuCommandInteraction
 } from "discord.js";
+import database from "./database";
 import events from "./events";
-import functions, { InteractionExecution } from "./functions";
+import functions, { ChatInputCommand, MessageCommand, UserCommand } from "./functions";
 import interactions from "./interactions";
 import config from './utils/config';
 import logger from "./utils/logger";
 
 export default class BotClient extends Client {
-    private fns: Collection<string, InteractionExecution>;
+    private chatInputCommands: Collection<string, ChatInputCommand>;
+    private userCommands: Collection<string, UserCommand>;
+    private messageCommands: Collection<string, MessageCommand>;
     public readonly logger = logger;
-    
+    private _orm!: MikroORM<PostgreSqlDriver>;
+
     constructor(options: ClientOptions) {
         super(options);
-        this.fns = new Collection();
+        this.chatInputCommands = new Collection();
+        this.userCommands = new Collection();
+        this.messageCommands = new Collection();
+    }
+
+    private async loadDatabase() {
+        this._orm = await database();
     }
 
     private async loadFunctions() {
         const fns = await functions();
         fns.forEach((fn) => {
-            const key = this.makeFnKey(fn.name, fn.subcommand, fn.group);
-            this.fns.set(key, fn.execute);
+            switch (fn.type) {
+                case "chat_input":
+                    this.chatInputCommands.set(
+                        this.getChatInputKey(fn.name, fn.subcommand, fn.group),
+                        fn
+                    );
+                    break;
+                case "user":
+                    this.userCommands.set(fn.name, fn);
+                    break;
+                case "message":
+                    this.messageCommands.set(fn.name, fn);
+                    break;
+            }
         });
     }
 
@@ -49,26 +75,52 @@ export default class BotClient extends Client {
         }
     }
 
-    private makeFnKey(name: string, subcommand?: string, group?: string) {
+    private getChatInputKey(name: string, subcommand?: string, group?: string) {
         const subcommandKey = subcommand ? `-${subcommand}` : "";
         const groupKey = group ? `-${group}` : "";
         return `${name}${subcommandKey}${groupKey}`;
     }
 
-    public getFunction(inter: ChatInputCommandInteraction) {
+    public runCommand(inter: CommandInteraction) {
+        if (inter.isChatInputCommand()) {
+            return this.getChatInputCommand(inter)?.execute(this, inter);
+        }
+        if (inter.isUserContextMenuCommand()) {
+            return this.getUserCommand(inter)?.execute(this, inter);
+        }
+        if (inter.isMessageContextMenuCommand()) {
+            return this.getMessageCommand(inter)?.execute(this, inter);
+        }
+        throw new Error(`Unhandled command type: ${inter.commandType}`)
+    }
+
+    public getChatInputCommand(inter: ChatInputCommandInteraction) {
         const name = inter.commandName;
         const subcommand = inter.options.getSubcommand(false) ?? undefined;
         const group = inter.options.getSubcommandGroup(false) ?? undefined;
-        const key = this.makeFnKey(name, subcommand, group);
-        return this.fns.get(key);
+        const key = this.getChatInputKey(name, subcommand, group);
+        return this.chatInputCommands.get(key);
     }
 
-    public async start(token: string) {
+    public getUserCommand(inter: UserContextMenuCommandInteraction) {
+        return this.userCommands.get(inter.commandName);
+    }
+
+    public getMessageCommand(inter: MessageContextMenuCommandInteraction) {
+        return this.messageCommands.get(inter.commandName);
+    }
+
+    public async start() {
         await Promise.all([
+            this.loadDatabase(),
             this.loadInteractions(),
             this.loadEvents(),
             this.loadFunctions()
         ]);
-        return this.login(token);
+        return this.login(config("DISCORD_TOKEN"));
+    }
+
+    get orm() {
+        return this._orm;
     }
 }

@@ -1,10 +1,11 @@
 import path from "path";
 import dotenv from "dotenv";
-dotenv.config({ path: path.resolve(__dirname, "../.env") })
+import { expand } from "dotenv-expand";
+const env = dotenv.config({ path: path.resolve(__dirname, "../.env") })
+expand(env);
 
 import { ActivityType, IntentsBitField } from "discord.js";
 import BotClient from "./client";
-import config from "./utils/config";
 
 const client = new BotClient({
     intents: [
@@ -22,4 +23,4 @@ const client = new BotClient({
     }
 });
 
-client.start(config("DISCORD_TOKEN"));
+client.start();
