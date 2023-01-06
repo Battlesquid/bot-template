@@ -1,13 +1,12 @@
 import { ChatInputCommandInteraction } from "discord.js";
 import ms from "ms";
+import { ChatInputCommand } from '.';
 import BotClient from '../client';
-import { ChatInputCommand } from '../functions';
 
-const command: ChatInputCommand = {
-    type: "chat_input",
-    name: "mod",
-    subcommand: "timeout",
-    execute: async (client: BotClient, inter: ChatInputCommandInteraction) => {
+class ModTimeout extends ChatInputCommand {
+    name = "mod";
+    subcommand = "timeout";
+    async execute(client: BotClient, inter: ChatInputCommandInteraction) {
         const user = inter.options.getUser("user", true);
         const duration = inter.options.getString("duration", true);
         const reason = inter.options.getString("reason", false) ?? undefined;
@@ -52,6 +51,6 @@ const command: ChatInputCommand = {
             inter.reply("An invalid duration was provided.");
         }
     }
-};
+}
 
-export default command;
+export default new ModTimeout();

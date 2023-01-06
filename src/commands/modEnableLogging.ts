@@ -1,13 +1,12 @@
 import { ChatInputCommandInteraction } from "discord.js";
+import { ChatInputCommand } from '.';
 import BotClient from '../client';
 import LoggingSettings from "../entities/LoggingSettings";
-import { ChatInputCommand } from '../functions';
 
-const command: ChatInputCommand = {
-    type: "chat_input",
-    name: "mod",
-    subcommand: "enable_logging",
-    execute: async (client: BotClient, inter: ChatInputCommandInteraction) => {
+class ModEnableLogging extends ChatInputCommand {
+    name = "mod";
+    subcommand = "enable_logging";
+    async execute(client: BotClient, inter: ChatInputCommandInteraction) {
         if (!inter.guildId) {
             inter.reply("An unexpected error occured.");
             return;
@@ -34,6 +33,6 @@ const command: ChatInputCommand = {
 
         inter.reply(`Enabled ${type} logging.`);
     }
-};
+}
 
-export default command;
+export default new ModEnableLogging();

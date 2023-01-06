@@ -1,6 +1,7 @@
 import { MikroORM } from "@mikro-orm/core";
 import { PostgreSqlDriver } from "@mikro-orm/postgresql";
 import {
+    ApplicationCommandType,
     ChatInputCommandInteraction,
     Client,
     ClientOptions,
@@ -10,9 +11,13 @@ import {
     Routes,
     UserContextMenuCommandInteraction
 } from "discord.js";
+import commands, {
+    ChatInputCommand,
+    MessageCommand,
+    UserCommand
+} from "./commands";
 import database from "./database";
 import events from "./events";
-import functions, { ChatInputCommand, MessageCommand, UserCommand } from "./functions";
 import interactions from "./interactions";
 import config from './utils/config';
 import logger from "./utils/logger";
@@ -35,21 +40,22 @@ export default class BotClient extends Client {
         this._orm = await database();
     }
 
-    private async loadFunctions() {
-        const fns = await functions();
-        fns.forEach((fn) => {
-            switch (fn.type) {
-                case "chat_input":
-                    this.chatInputCommands.set(
-                        this.getChatInputKey(fn.name, fn.subcommand, fn.group),
-                        fn
-                    );
+    get orm() {
+        return this._orm;
+    }
+
+    private async loadCommands() {
+        const cmds = await commands();
+        cmds.forEach((cmd) => {
+            switch (cmd.type) {
+                case ApplicationCommandType.Message:
+                    this.messageCommands.set(cmd.getName(), cmd);
                     break;
-                case "user":
-                    this.userCommands.set(fn.name, fn);
+                case ApplicationCommandType.ChatInput:
+                    this.chatInputCommands.set(cmd.getName(), cmd);
                     break;
-                case "message":
-                    this.messageCommands.set(fn.name, fn);
+                case ApplicationCommandType.User:
+                    this.userCommands.set(cmd.getName(), cmd);
                     break;
             }
         });
@@ -75,12 +81,6 @@ export default class BotClient extends Client {
         }
     }
 
-    private getChatInputKey(name: string, subcommand?: string, group?: string) {
-        const subcommandKey = subcommand ? `-${subcommand}` : "";
-        const groupKey = group ? `-${group}` : "";
-        return `${name}${subcommandKey}${groupKey}`;
-    }
-
     public runCommand(inter: CommandInteraction) {
         if (inter.isChatInputCommand()) {
             return this.getChatInputCommand(inter)?.execute(this, inter);
@@ -95,10 +95,11 @@ export default class BotClient extends Client {
     }
 
     public getChatInputCommand(inter: ChatInputCommandInteraction) {
-        const name = inter.commandName;
-        const subcommand = inter.options.getSubcommand(false) ?? undefined;
-        const group = inter.options.getSubcommandGroup(false) ?? undefined;
-        const key = this.getChatInputKey(name, subcommand, group);
+        const key = [
+            inter.commandName,
+            inter.options.getSubcommandGroup(false),
+            inter.options.getSubcommand(false)
+        ].filter(Boolean).join("-");
         return this.chatInputCommands.get(key);
     }
 
@@ -115,12 +116,8 @@ export default class BotClient extends Client {
             this.loadDatabase(),
             this.loadInteractions(),
             this.loadEvents(),
-            this.loadFunctions()
+            this.loadCommands()
         ]);
         return this.login(config("DISCORD_TOKEN"));
-    }
-
-    get orm() {
-        return this._orm;
     }
 }

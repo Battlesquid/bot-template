@@ -1,13 +1,12 @@
 import { ChatInputCommandInteraction } from "discord.js";
+import { ChatInputCommand } from '.';
 import BotClient from '../client';
 import LoggingSettings from "../entities/LoggingSettings";
-import { ChatInputCommand } from '../functions';
 
-const command: ChatInputCommand = {
-    type: "chat_input",
-    name: "mod",
-    subcommand: "disable_logging",
-    execute: async (client: BotClient, inter: ChatInputCommandInteraction) => {
+class ModDisableLogging extends ChatInputCommand {
+    name = "mod";
+    subcommand = "disable_logging";
+    async execute(client: BotClient, inter: ChatInputCommandInteraction) {
         const type = inter.options.getString("type", true);
 
         const em = client.orm.em.fork();
@@ -32,6 +31,6 @@ const command: ChatInputCommand = {
 
         inter.reply(`Disabled ${type} logging.`);
     }
-};
+}
 
-export default command;
+export default new ModDisableLogging();
