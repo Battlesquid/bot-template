@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { PermissionsBitField, SlashCommandSubcommandBuilder } from "discord.js";
+import { ChannelType, PermissionsBitField, SlashCommandSubcommandBuilder } from "discord.js";
 
 const timeout = new SlashCommandSubcommandBuilder()
     .setName("timeout")
@@ -22,10 +22,47 @@ const timeout = new SlashCommandSubcommandBuilder()
             .setDescription("The reason for timing this user out")
     );
 
+const enableLogging = new SlashCommandSubcommandBuilder()
+    .setName("enable_logging")
+    .setDescription("Enable a type of log")
+    .addStringOption((opt) =>
+        opt
+            .setName("type")
+            .setDescription("The type of log to enable")
+            .addChoices(...[
+                { name: "text", value: "text" },
+                { name: "image", value: "image" },
+            ])
+            .setRequired(true)
+    )
+    .addChannelOption((opt) =>
+        opt
+            .setName("channel")
+            .setDescription("The channel to send these logs to")
+            .addChannelTypes(ChannelType.GuildText)
+            .setRequired(true)
+    );
+
+const disableLogging = new SlashCommandSubcommandBuilder()
+    .setName("disable_logging")
+    .setDescription("Disable image logging")
+    .addStringOption((opt) =>
+        opt
+            .setName("type")
+            .setDescription("The type of log to disable")
+            .addChoices(...[
+                { name: "text", value: "text" },
+                { name: "image", value: "image" },
+            ])
+            .setRequired(true)
+    );
+
 const mod = new SlashCommandBuilder()
     .setName("mod")
     .setDescription("Moderation commands.")
     .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageGuild)
-    .addSubcommand(timeout);
+    .addSubcommand(timeout)
+    .addSubcommand(enableLogging)
+    .addSubcommand(disableLogging);
 
 export default mod;

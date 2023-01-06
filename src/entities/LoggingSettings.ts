@@ -4,21 +4,21 @@ import { Snowflake } from "discord.js";
 @Entity()
 export default class LoggingSettings {
     @PrimaryKey({ columnType: "varchar" })
-    guildId!: Snowflake;
+    guild_id!: Snowflake;
 
     @Property({ columnType: "varchar", nullable: true })
-    textLog: Snowflake | null;
+    txt_log: Snowflake | null;
 
     @Property({ columnType: "varchar", nullable: true })
-    imageLog: Snowflake | null;
+    img_log: Snowflake | null;
 
     constructor(
         guild: Snowflake,
-        textLog: Snowflake | null,
-        imageLog: Snowflake | null
+        txt_log: Snowflake | null,
+        img_log: Snowflake | null
     ) {
-        this.guildId = guild;
-        this.textLog = textLog;
-        this.imageLog = imageLog;
+        this.guild_id = guild;
+        this.txt_log = txt_log;
+        this.img_log = img_log;
     }
 }
