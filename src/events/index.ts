@@ -2,7 +2,7 @@ import { ClientEvents } from "discord.js";
 import BotClient from "../client";
 import { loadDirAs } from "../utils/loadDir";
 
-export type Event<K extends keyof ClientEvents> = {
+export type Event<K extends keyof ClientEvents = keyof ClientEvents> = {
     name: K;
     once?: boolean | false;
     handle(
@@ -11,4 +11,4 @@ export type Event<K extends keyof ClientEvents> = {
     ): Promise<void> | void;
 };
 
-export default () => loadDirAs<Event<keyof ClientEvents>>(__dirname);
+export default () => loadDirAs<Event>(__dirname);

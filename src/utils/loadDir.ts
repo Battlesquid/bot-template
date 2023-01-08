@@ -6,7 +6,7 @@ export const loadDir = async (path: string) => {
     const dirs: string[] = [];
     const files: string[] = [];
     dir.forEach((i) => {
-        if (i.name.startsWith("index")) {
+        if (/index\.[jt]s/.test(i.name)) {
             return;
         }
         i.isDirectory()

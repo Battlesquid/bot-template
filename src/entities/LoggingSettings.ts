@@ -13,11 +13,11 @@ export default class LoggingSettings {
     img_log: Snowflake | null;
 
     constructor(
-        guild: Snowflake,
+        guild_id: Snowflake,
         txt_log: Snowflake | null,
         img_log: Snowflake | null
     ) {
-        this.guild_id = guild;
+        this.guild_id = guild_id;
         this.txt_log = txt_log;
         this.img_log = img_log;
     }

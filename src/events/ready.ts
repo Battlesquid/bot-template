@@ -1,7 +1,8 @@
+import { Events } from "discord.js";
 import { Event } from ".";
 
-const event: Event<"ready"> = {
-    name: "ready",
+const event: Event<Events.ClientReady> = {
+    name: Events.ClientReady,
     once: true,
     handle(client) {
         client.logger.info("bot online.");
