@@ -5,10 +5,7 @@ import { loadDirAs } from "../utils/loadDir";
 export type Event<K extends keyof ClientEvents = keyof ClientEvents> = {
     name: K;
     once?: boolean | false;
-    handle(
-        client: BotClient,
-        ...args: ClientEvents[K]
-    ): Promise<void> | void;
+    handle(client: BotClient, ...args: ClientEvents[K]): Promise<void>;
 };
 
 export default () => loadDirAs<Event>(__dirname);
